@@ -1,5 +1,2 @@
 rootProject.name = 'springcloud'
-include("domain")
-include("util")
 include("users")
-include("secret-util")

@@ -1,7 +1,4 @@
 dependencies {
-    api(project(":util")) {
-        exclude module: "org.springframework.boot:spring-boot-starter-data-jpa"
-    }
     api("org.springframework.boot:spring-boot-starter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
