@@ -1,0 +1,9 @@
+jar {
+    enabled = true
+    archivesBaseName = 'secret-util'
+}
+
+dependencies {
+    api("org.springframework.boot:spring-boot-starter-data-redis")
+    api("org.springframework.boot:spring-boot-starter-data-mongodb")
+}
