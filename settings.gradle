@@ -1,2 +1,3 @@
 rootProject.name = 'springcloud'
-include("users")
+include("discovery")
+include("zuul-gateway")

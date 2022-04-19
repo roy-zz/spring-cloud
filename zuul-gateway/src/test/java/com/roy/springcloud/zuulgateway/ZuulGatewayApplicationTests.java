@@ -1,10 +1,10 @@
-package com.roy.users;
+package com.roy.springcloud.zuulgateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class UsersApplicationTests {
+class ZuulGatewayApplicationTests {
 
     @Test
     void contextLoads() {
