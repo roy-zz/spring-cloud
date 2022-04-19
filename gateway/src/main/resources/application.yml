@@ -3,7 +3,22 @@ server:
 
 eureka:
   client:
-    register-with-eureka: false
-    fetch-registry: false
+    register-with-eureka: true
+    fetch-registry: true
     service-url:
       defaultZone: http://localhost:8761/eureka
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: test-server-1
+          uri: lb://TEST-SERVER-1
+          predicates:
+            - Path=/test-server-1/**
+        - id: test-server-2
+          uri: lb://TEST-SERVER-2
+          predicates:
+            - Path=/test-server-2/**
