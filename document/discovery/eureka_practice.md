@@ -7,11 +7,11 @@
 
 마이크로서비스의 특성상 한 번에 많은 프로젝트를 실행시켜야한다.
 수많은 프로젝트를 위해 IDE를 여러개 실행시키기에는 무리가 있으므로 멀티 모듈로 구성하여 진행하도록 한다.
-멀티 모듈 프로젝트 구성은 필자가 이전에 작성해놓은 [글 (링크)](https://imprint.tistory.com/206?category=1069520) 를 참고하도록 한다.
+멀티 모듈 프로젝트 구성은 필자가 이전에 [작성해놓은 글 (링크)](https://imprint.tistory.com/206?category=1069520) 를 참고하도록 한다.
 
 ---
 
-**1. 의존성 추가.**
+**1. 의존성 추가**
 
 유레카 서버를 구축하기 위해 필요한 의존성이므로 전부 추가하도록 한다.
 
@@ -50,7 +50,7 @@ public class DiscoveryApplication {
 
 서버가 사용할 포트를 8761로 지정하였다.
 애플리케이션의 이름을 discovery로 지정하였다.
-eureka.client.register-with-eureka(유레카 서버에 등록이 될 것인지)와 eureka.client.fetch-registry(유레카 서버의 registry와 동기화 여부)는 기본값이 true다.
+eureka.client.register-with-eureka와 eureka.client.fetch-registry는 기본값이 true다.
 유레카 서버의 경우 두 기능이 필요없으므로 false 처리한다.
 
 ```yaml
