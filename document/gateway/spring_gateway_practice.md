@@ -1,4 +1,4 @@
-이번 장에서는 [API Gateway - 이론]()에 이어 직접 Spring Gateway 서버를 구축해본다.
+이번 장에서는 [API Gateway Pattern- 이론](https://imprint.tistory.com/214) 에 이어 직접 Spring Gateway 서버를 구축해본다.
 모든 소스 코드는 [깃허브 (링크)](https://github.com/roy-zz/spring-cloud) 에 올려두었다.
 
 ---
@@ -6,7 +6,7 @@
 ### 프로젝트 구성
 
 Spring Gateway 서버를 구축하기 위해서는 Discovery 서버가 실행되어 있어야한다.
-만약 실행되지 않은 상태라면 필자가 [이전에 작성한 글 (링크)]() 를 참고하도록 한다.
+만약 실행되지 않은 상태라면 필자가 [이전에 작성한 글 (링크)](https://imprint.tistory.com/213) 를 참고하도록 한다.
 
 ---
 
