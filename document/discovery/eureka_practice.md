@@ -1,4 +1,4 @@
-이번 장에서는 [Spring Cloud Netflix Eureka - 이론]()에 이어 직접 디스커버리(유레카) 서버를 구축해본다.
+이번 장에서는 [Spring Cloud Netflix Eureka - 이론](https://imprint.tistory.com/212?category=1069520) 에 이어 직접 디스커버리(유레카) 서버를 구축해본다.
 모든 소스 코드는 [깃허브 (링크)](https://github.com/roy-zz/spring-cloud) 에 올려두었다.
 
 ---
