@@ -1,8 +1,11 @@
 package com.roy.springcloud.userservice.dto;
 
+import com.roy.springcloud.userservice.vo.response.OrderResponse;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class UserDto {
@@ -12,4 +15,5 @@ public class UserDto {
     private String userId;
     private LocalDateTime createdAt;
     private String encryptedPassword;
+    private List<OrderResponse> orders = new ArrayList<>();
 }
