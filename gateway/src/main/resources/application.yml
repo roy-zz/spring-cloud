@@ -13,6 +13,12 @@ spring:
     name: gateway-service
   cloud:
     gateway:
+      default-filters:
+        - name: GlobalFilter
+          args:
+            message: Spring Cloud Gateway GlobalFilter Message
+            showPreLogger: true
+            showPostLogger: true
       routes:
         - id: test-server-1
           uri: lb://TEST-SERVER-1

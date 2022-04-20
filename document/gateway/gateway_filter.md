@@ -211,8 +211,109 @@ c.r.s.gateway.filter.CustomFilter        : Custom post process filter: response 
 
 ---
 
+### Global Filter
 
+라우터 정보마다 일일히 필터를 적용하는 것이 아니라 전역으로 Global Filter를 설정하는 방법을 알아본다.
 
+1. Filter 역할을 하게될 클래스 파일을 작성한다.
+
+CustomFilter와 크게 다른 점은 없다. 단지 application.yml의 properties값을 가져오기 위해서 Config 클래스의 필드가 생겼다.
+만약 application.yml 파일에서 showPreLogger의 값이 true라면 요청처리 전에 필터에서 전처리가 일어난다.
+showPostLogger의 값이 true라면 요청처리 후에 필터에서 후처리가 일어난다.
+
+```java
+@Slf4j
+@Component
+public class GlobalFilter extends AbstractGatewayFilterFactory<GlobalFilter.Config> {
+    public GlobalFilter() {
+        super(Config.class);
+    }
+    @Override
+    public GatewayFilter apply(Config config) {
+        return (exchange, chain) -> {
+            ServerHttpRequest request = exchange.getRequest();
+            ServerHttpResponse response = exchange.getResponse();
+            log.info("Global Filter Message: {}", config.getMessage());
+            if (config.isShowPreLogger()) {
+                log.info("Global Filter Start: request id -> {}", request.getId());
+            }
+            return chain.filter(exchange).then(Mono.fromRunnable(() -> {
+                if (config.isShowPostLogger()) {
+                    log.info("Global Filter End: response code -> {}", response.getStatusCode());
+                }
+            }));
+        };
+    }
+
+    @Data
+    public static class Config {
+        private String message;
+        private boolean showPreLogger;
+        private boolean showPostLogger;
+    }
+}
+```
+
+2. application.yml 파일을 수정한다.
+
+default-filters가 추가되었으며 우리가 새로 작성한 GlobalFilter 클래스를 등록시켜두었다.
+
+```yaml
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      default-filters:
+        - name: GlobalFilter
+          args:
+            message: Spring Cloud Gateway GlobalFilter Message
+            showPreLogger: true
+            showPostLogger: true
+      routes:
+        - id: test-server-1
+          uri: lb://TEST-SERVER-1
+          predicates:
+            - Path=/test-server-1/**
+          filters:
+            # - AddRequestHeader=test-server-1-request, test-server-1-request-header
+            # - AddResponseHeader=test-server-1-response, test-server-1-response-header
+            - CustomFilter
+        - id: test-server-2
+          uri: lb://TEST-SERVER-2
+          predicates:
+            - Path=/test-server-2/**
+          filters:
+            # - AddRequestHeader=test-server-2-request, test-server-2-request-header
+            # - AddResponseHeader=test-server-2-response, test-server-2-response-header
+            - CustomFilter
+```
+
+3. 정상작동 확인
+
+1, 2단계를 완료하였다면 Gateway를 재실행시키고 localhost:8000/test-server-1/custom-filter와 localhost:8000/test-server-2/custom-filter에 접속해본다.
+우리가 예상한 것과 같이 출력 결과는 아래와 같다.
+
+**test-server-1 접속**
+```bash
+c.r.s.gateway.filter.GlobalFilter        : Global Filter Message: Spring Cloud Gateway GlobalFilter Message
+c.r.s.gateway.filter.GlobalFilter        : Global Filter Start: request id -> 1178a759-3
+c.r.s.gateway.filter.CustomFilter        : Custom pre process filter: request uri -> 1178a759-3
+c.r.s.gateway.filter.CustomFilter        : Custom post process filter: response code -> 200 OK
+c.r.s.gateway.filter.GlobalFilter        : Global Filter End: response code -> 200 OK
+```
+**test-server-2 접속**
+```bash
+c.r.s.gateway.filter.GlobalFilter        : Global Filter Message: Spring Cloud Gateway GlobalFilter Message
+c.r.s.gateway.filter.GlobalFilter        : Global Filter Start: request id -> 1178a759-4
+c.r.s.gateway.filter.CustomFilter        : Custom pre process filter: request uri -> 1178a759-4
+c.r.s.gateway.filter.CustomFilter        : Custom post process filter: response code -> 200 OK
+c.r.s.gateway.filter.GlobalFilter        : Global Filter End: response code -> 200 OK
+```
+
+이전에 생성한 CustomFilter도 여전히 filter로 등록되어 있기 때문에 GlobalFilter의 내용과 같이 출력되는 것을 확인할 수 있다.
+
+---
 
 
 ---
