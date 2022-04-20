@@ -6,6 +6,7 @@ import com.roy.springcloud.userservice.repository.UserRepository;
 import com.roy.springcloud.userservice.service.UserService;
 import com.roy.springcloud.util.mapper.MapperUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -14,12 +15,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public UserDto createUser(UserDto userDto) {
         userDto.setUserId(UUID.randomUUID().toString());
         User user = MapperUtil.toObject(userDto, User.class);
-        user.setEncryptedPassword("encrypted_password");
+        user.setEncryptedPassword(passwordEncoder.encode(userDto.getPassword()));
         userRepository.save(user);
         return userDto;
     }

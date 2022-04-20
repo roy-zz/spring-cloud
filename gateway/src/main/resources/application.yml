@@ -2,6 +2,8 @@ server:
   port: 8000
 
 eureka:
+  instance:
+    instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
   client:
     register-with-eureka: true
     fetch-registry: true
@@ -20,6 +22,10 @@ spring:
             showPreLogger: true
             showPostLogger: true
       routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user-service/**
         - id: test-server-1
           uri: lb://TEST-SERVER-1
           predicates:

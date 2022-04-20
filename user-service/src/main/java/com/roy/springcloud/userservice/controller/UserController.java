@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import static com.roy.springcloud.util.mapper.MapperUtil.toObject;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/user-service")
 @RequiredArgsConstructor
 public class UserController {
     private final Environment environment;
