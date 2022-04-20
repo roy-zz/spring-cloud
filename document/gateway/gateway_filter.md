@@ -315,6 +315,110 @@ c.r.s.gateway.filter.GlobalFilter        : Global Filter End: response code -> 2
 
 ---
 
+### Logging Filter
+
+이번에는 Logging Filter를 만드는 방법에 대해서 다뤄본다.
+Custom Filter와 거의 동일한 방식으로 진행되며 추가로 Filter가 적용되는 순서를 지정하는 방법에 대해서 알아본다.
+
+1. Filter 역할을 하게 될 클래스 파일을 작성한다.
+
+이전과 다르게 apply에서 반환하는 타입이 OrderedGatewayFilter로 구체화 되었다.
+또한 파라미터로 Ordered.LOWEST_PRECEDENCE를 전달받아서 적용되어 있는 Filter 중 가장 낮은 우선권을 가지도록 구현하였다.
+
+```java
+@Slf4j
+@Component
+public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Config> {
+    public LoggingFilter() {
+        super(Config.class);
+    }
+    @Override
+    public GatewayFilter apply(LoggingFilter.Config config) {
+        return new OrderedGatewayFilter((exchange, chain) -> {
+            ServerHttpRequest request = exchange.getRequest();
+            ServerHttpResponse response = exchange.getResponse();
+
+            log.info("Logging filter message: {}", config.getMessage());
+            if (config.isShowPreLogger()) {
+                log.info("Logging filter pre process: request uri -> {}", request.getURI());
+            }
+            return chain.filter(exchange).then(Mono.fromRunnable(() -> {
+                if (config.isShowPostLogger()) {
+                    log.info("Logging filter post process: response code -> {}", response.getStatusCode());
+                }
+            }));
+        }, Ordered.LOWEST_PRECEDENCE);
+    }
+    @Data
+    public static class Config {
+        private String message;
+        private boolean showPreLogger;
+        private boolean showPostLogger;
+    }
+}
+```
+
+2. application.yml 수정
+
+filters 부분에 LoggingFilter가 추가되어 CustomFilter와 함께 총 두 개의 필터가 적용되었다.
+
+```yaml
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      default-filters:
+        - name: GlobalFilter
+          args:
+            message: Spring Cloud Gateway GlobalFilter Message
+            showPreLogger: true
+            showPostLogger: true
+      routes:
+        - id: test-server-1
+          uri: lb://TEST-SERVER-1
+          predicates:
+            - Path=/test-server-1/**
+          filters:
+            - name: CustomFilter
+            - name: LoggingFilter
+              args:
+                message: TEST-SERVER-1
+                showPreLogger: true
+                showPostLogger: true
+        - id: test-server-2
+          uri: lb://TEST-SERVER-2
+          predicates:
+            - Path=/test-server-2/**
+          filters:
+            - name: CustomFilter
+            - name: LoggingFilter
+              args:
+                message: TEST-SERVER-2
+                showPreLogger: true
+                showPostLogger: true
+```
+
+3. 정상작동 확인
+
+Discovery, Gateway, test-server1, test-server2 모든 서비스를 실행시키고 브라우저에 아래의 주소를 입력하고 접속해본다.
+
+- localhost:8000/test-server-1/custom-filter
+- localhost:8000/test-server-2/custom-filter
+
+출력되는 결과는 아래와 같다.
+가장 낮은 우선순위를 가지고 있던 Logging Filter가 가장 늦게 출력된 것을 확인할 수 있다.
+
+```bash
+c.r.s.gateway.filter.GlobalFilter        : Global Filter Message: Spring Cloud Gateway GlobalFilter Message
+c.r.s.gateway.filter.GlobalFilter        : Global Filter Start: request id -> 87b06d4e-1
+c.r.s.gateway.filter.CustomFilter        : Custom pre process filter: request uri -> 87b06d4e-1
+c.r.s.gateway.filter.LoggingFilter       : Logging filter message: TEST-SERVER-1
+c.r.s.gateway.filter.LoggingFilter       : Logging filter pre process: request uri -> http://localhost:8000/test-server-1/custom-filter
+c.r.s.gateway.filter.LoggingFilter       : Logging filter post process: response code -> 200 OK
+c.r.s.gateway.filter.CustomFilter        : Custom post process filter: response code -> 200 OK
+c.r.s.gateway.filter.GlobalFilter        : Global Filter End: response code -> 200 OK
+```
 
 ---
 

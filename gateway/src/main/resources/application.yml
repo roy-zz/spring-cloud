@@ -25,14 +25,20 @@ spring:
           predicates:
             - Path=/test-server-1/**
           filters:
-            # - AddRequestHeader=test-server-1-request, test-server-1-request-header
-            # - AddResponseHeader=test-server-1-response, test-server-1-response-header
-            - CustomFilter
+            - name: CustomFilter
+            - name: LoggingFilter
+              args:
+                message: TEST-SERVER-1
+                showPreLogger: true
+                showPostLogger: true
         - id: test-server-2
           uri: lb://TEST-SERVER-2
           predicates:
             - Path=/test-server-2/**
           filters:
-            # - AddRequestHeader=test-server-2-request, test-server-2-request-header
-            # - AddResponseHeader=test-server-2-response, test-server-2-response-header
-            - CustomFilter
+            - name: CustomFilter
+            - name: LoggingFilter
+              args:
+                message: TEST-SERVER-2
+                showPreLogger: true
+                showPostLogger: true
