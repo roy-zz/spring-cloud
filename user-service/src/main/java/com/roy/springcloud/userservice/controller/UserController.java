@@ -16,7 +16,7 @@ import java.util.List;
 import static com.roy.springcloud.util.mapper.MapperUtil.toObject;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("")
 @RequiredArgsConstructor
 public class UserController {
     private final Environment environment;
