@@ -5,11 +5,13 @@ import com.roy.springcloud.userservice.dto.UserDto;
 import com.roy.springcloud.userservice.repository.UserRepository;
 import com.roy.springcloud.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,6 +39,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDto getUserDetailsByEmail(String email) {
+        User savedUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return toObject(savedUser, UserDto.class);
+    }
+
+    @Override
     public List<UserDto> getAllUser() {
         Iterable<User> savedUsers = userRepository.findAll();
         List<UserDto> response = new ArrayList<>();
@@ -44,5 +53,16 @@ public class UserServiceImpl implements UserService {
             response.add(toObject(user, UserDto.class));
         });
         return response;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User savedUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return new org.springframework.security.core.userdetails.User(
+                savedUser.getEmail(), savedUser.getEncryptedPassword(),
+                true, true, true, true,
+                Collections.emptyList()
+        );
     }
 }

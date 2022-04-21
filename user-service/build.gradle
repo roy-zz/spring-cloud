@@ -1,5 +1,5 @@
 ext {
-    set('springCloudVersion', "2021.0.1")
+    set('springCloudVersion', "2020.0.5")
 }
 
 dependencies {
@@ -10,6 +10,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
     compileOnly 'org.projectlombok:lombok'
 

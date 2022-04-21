@@ -10,6 +10,9 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
+token:
+  secret: user_token
+
 spring:
   application:
     name: gateway-service
@@ -25,7 +28,28 @@ spring:
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
+            - Path=/user-service/login
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user-service/users
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
             - Path=/user-service/**
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
         - id: catalog-service
           uri: lb://CATALOG-SERVICE
           predicates:
@@ -34,25 +58,29 @@ spring:
           uri: lb://ORDER-SERVICE
           predicates:
             - Path=/order-service/**
-        - id: test-server-1
-          uri: lb://TEST-SERVER-1
-          predicates:
-            - Path=/test-server-1/**
-          filters:
-            - name: CustomFilter
-            - name: LoggingFilter
-              args:
-                message: TEST-SERVER-1
-                showPreLogger: true
-                showPostLogger: true
-        - id: test-server-2
-          uri: lb://TEST-SERVER-2
-          predicates:
-            - Path=/test-server-2/**
-          filters:
-            - name: CustomFilter
-            - name: LoggingFilter
-              args:
-                message: TEST-SERVER-2
-                showPreLogger: true
-                showPostLogger: true
+#        - id: test-server-1
+#          uri: lb://TEST-SERVER-1
+#          predicates:
+#            - Path=/test-server-1/**
+#          filters:
+#            - name: CustomFilter
+#            - name: LoggingFilter
+#              args:
+#                message: TEST-SERVER-1
+#                showPreLogger: true
+#                showPostLogger: true
+#        - id: test-server-2
+#          uri: lb://TEST-SERVER-2
+#          predicates:
+#            - Path=/test-server-2/**
+#          filters:
+#            - name: CustomFilter
+#            - name: LoggingFilter
+#              args:
+#                message: TEST-SERVER-2
+#                showPreLogger: true
+#                showPostLogger: true
+
+logging:
+  lelvel:
+    com.roy.springcloud.gateway: DEBUG

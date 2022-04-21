@@ -1,5 +1,5 @@
 ext {
-    set('springCloudVersion', "2021.0.1")
+    set('springCloudVersion', "2020.0.5")
 }
 
 dependencies {
