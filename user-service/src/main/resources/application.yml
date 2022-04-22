@@ -29,3 +29,9 @@ greeting:
 logging:
   lelvel:
     com.roy.springcloud.userservice: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,beans,httptrace

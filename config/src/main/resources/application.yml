@@ -9,16 +9,15 @@ spring:
   cloud:
     config:
       server:
-        native:
-          search-locations: file://${user.home}/Desktop/my-project/spring-cloud-config
+        git:
+          uri: https://github.com/roy-zz/spring-cloud-config.git
+          search-paths:
+            - user
+            - order
+            - gateway
+            - catalog
 
-#        git:
-#          Remote Git Repository
-#          uri: https://github.com/roy-zz/spring-cloud-config.git
+#        native:
+#          search-locations: file://${user.home}/Desktop/my-project/spring-cloud-config
 #          Local Git Repository
 #          uri: file://${user.home}/Desktop/my-project/spring-cloud-config
-#          search-paths:
-#            - user
-#            - order
-#            - gateway
-#            - catalog

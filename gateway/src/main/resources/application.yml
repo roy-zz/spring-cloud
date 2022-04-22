@@ -44,6 +44,14 @@ spring:
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
+            - Path=/user-service/actuator/**
+            - Method=GET,POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
             - Path=/user-service/**
             - Method=GET
           filters:
@@ -80,6 +88,12 @@ spring:
 #                message: TEST-SERVER-2
 #                showPreLogger: true
 #                showPostLogger: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,beans,httptrace
 
 logging:
   lelvel:
