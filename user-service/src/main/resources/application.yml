@@ -23,10 +23,6 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
-token:
-  expiration_time: 864000000
-  secret: user_token
-
 greeting:
   message: Welcome to the Simple E-Commerce(User Service).
 
