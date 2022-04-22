@@ -1,8 +1,8 @@
 package com.roy.springcloud.userservice.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.roy.springcloud.userservice.dto.UserDto;
-import com.roy.springcloud.userservice.service.UserService;
+import com.roy.springcloud.userservice.dto.MyUserDto;
+import com.roy.springcloud.userservice.service.MyUserService;
 import com.roy.springcloud.userservice.vo.request.LoginRequest;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -27,11 +27,11 @@ import java.util.Objects;
 @SuppressWarnings("UastIncorrectHttpHeaderInspection")
 @Slf4j
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-    private final UserService userService;
+    private final MyUserService userService;
     private final Environment environment;
 
     public AuthenticationFilter(AuthenticationManager authenticationManager,
-                                UserService userService,
+                                MyUserService userService,
                                 Environment environment) {
         super(authenticationManager);
         this.userService = userService;
@@ -49,7 +49,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                             Collections.emptyList()
                     )
             );
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -58,7 +57,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         String userName = ((User) authResult.getPrincipal()).getUsername();
-        UserDto userDto = userService.getUserDetailsByEmail(userName);
+        MyUserDto userDto = userService.getUserDetailsByEmail(userName);
 
         String token = Jwts.builder()
                 .setSubject(userDto.getUserId())

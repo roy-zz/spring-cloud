@@ -1,6 +1,6 @@
 package com.roy.springcloud.userservice.security;
 
-import com.roy.springcloud.userservice.service.UserService;
+import com.roy.springcloud.userservice.service.MyUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -14,7 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurity extends WebSecurityConfigurerAdapter {
-    private final UserService userService;
+    private final MyUserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final Environment environment;
 
@@ -25,7 +25,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/actuator/**").permitAll();
         http.authorizeRequests().antMatchers("/health-check/**").permitAll();
         http.authorizeRequests().antMatchers("/**")
-                .hasIpAddress("192.168.0.2")
+                .hasIpAddress("0.0.0.0/0")
                 .and()
                 .addFilter(getAuthenticationFilter());
 

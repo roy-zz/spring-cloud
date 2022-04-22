@@ -1,9 +1,9 @@
 package com.roy.springcloud.userservice.controller;
 
-import com.roy.springcloud.userservice.dto.UserDto;
-import com.roy.springcloud.userservice.service.UserService;
-import com.roy.springcloud.userservice.vo.request.UserSaveRequest;
-import com.roy.springcloud.userservice.vo.response.UserResponse;
+import com.roy.springcloud.userservice.dto.MyUserDto;
+import com.roy.springcloud.userservice.service.MyUserService;
+import com.roy.springcloud.userservice.vo.request.MyUserSaveRequest;
+import com.roy.springcloud.userservice.vo.response.MyUserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -18,9 +18,9 @@ import static com.roy.springcloud.util.mapper.MapperUtil.toObject;
 @RestController
 @RequestMapping("")
 @RequiredArgsConstructor
-public class UserController {
+public class MyUserController {
     private final Environment environment;
-    private final UserService userService;
+    private final MyUserService userService;
 
     @GetMapping("/health-check")
     public String healthCheck() {
@@ -33,27 +33,27 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserSaveRequest request) {
-        UserDto userDto = toObject(request, UserDto.class);
+    public ResponseEntity<MyUserResponse> createUser(@RequestBody MyUserSaveRequest request) {
+        MyUserDto userDto = toObject(request, MyUserDto.class);
         userService.createUser(userDto);
-        UserResponse response = toObject(userDto, UserResponse.class);
+        MyUserResponse response = toObject(userDto, MyUserResponse.class);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<UserResponse>> getUsers() {
-        List<UserDto> savedUsers = userService.getAllUser();
-        List<UserResponse> response = new ArrayList<>();
+    public ResponseEntity<List<MyUserResponse>> getUsers() {
+        List<MyUserDto> savedUsers = userService.getAllUser();
+        List<MyUserResponse> response = new ArrayList<>();
         savedUsers.forEach(user -> {
-            response.add(toObject(user, UserResponse.class));
+            response.add(toObject(user, MyUserResponse.class));
         });
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/users/{userId}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable("userId") String userId) {
-        UserDto userDto = userService.getUserByUserId(userId);
-        UserResponse response = toObject(userDto, UserResponse.class);
+    public ResponseEntity<MyUserResponse> getUser(@PathVariable("userId") String userId) {
+        MyUserDto userDto = userService.getUserByUserId(userId);
+        MyUserResponse response = toObject(userDto, MyUserResponse.class);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

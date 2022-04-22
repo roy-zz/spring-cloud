@@ -28,16 +28,10 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
     public GatewayFilter apply(AuthorizationHeaderFilter.Config config) {
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
-            if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-                return onError(exchange, "No authorization header", HttpStatus.UNAUTHORIZED);
-            }
-
+            if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) return onError(exchange, "No authorization header", HttpStatus.UNAUTHORIZED);
             String authorizationHeader = request.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
             String jwt = authorizationHeader.replace("Bearer", "");
-
-            if (!isJwtValid(jwt)) {
-                return onError(exchange, "JWT token is not valid", HttpStatus.UNAUTHORIZED);
-            }
+            if (!isJwtValid(jwt)) return onError(exchange, "JWT token is not valid", HttpStatus.UNAUTHORIZED);
             return chain.filter(exchange);
         };
     }
@@ -50,20 +44,15 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
     }
 
     private boolean isJwtValid(String jwt) {
-        boolean returnValue = true;
-
         String subject = null;
         try {
             subject = Jwts.parser().setSigningKey(environment.getProperty("token.secret"))
                     .parseClaimsJws(jwt).getBody()
                     .getSubject();
         } catch (Exception ex) {
-            returnValue = false;
+            ex.printStackTrace();
         }
-        if (Strings.isBlank(subject)) {
-            returnValue = false;
-        }
-        return returnValue;
+        return !Strings.isBlank(subject);
     }
 
     public static class Config {}

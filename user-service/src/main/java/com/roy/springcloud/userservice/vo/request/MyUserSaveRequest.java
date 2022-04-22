@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Data
-public class UserSaveRequest {
+public class MyUserSaveRequest {
     @Email
     @NotNull(message = "Email cannot be blank")
     @Size(min = 2, message = "Email not be less than two characters")
