@@ -4,8 +4,12 @@ server:
 spring:
   application:
     name: config-service
-  profile:
-    active: native
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    passowrd: guest
+
   cloud:
     config:
       server:
@@ -17,7 +21,8 @@ spring:
             - gateway
             - catalog
 
-#        native:
-#          search-locations: file://${user.home}/Desktop/my-project/spring-cloud-config
-#          Local Git Repository
-#          uri: file://${user.home}/Desktop/my-project/spring-cloud-config
+management:
+  endpoint:
+    web:
+      exposure:
+        include: refresh,health,beans,httptrace,busrefresh

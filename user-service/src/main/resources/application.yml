@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: user-service
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    passowrd: guest
   h2:
     console:
       enabled: true
@@ -34,4 +39,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh,health,beans,httptrace
+        include: refresh,health,beans,httptrace,busrefresh
