@@ -1,4 +1,4 @@
-이번 장에서는 대칭키와 비대칭키를 통한 암호화에 대해서 알아본다.
+이번 장에서는 Config 서버의 정보를 대칭키를 사용하여 암호화하는 방식에 대해서 알아본다.
 모든 소스 코드는 [깃허브 (링크)](https://github.com/roy-zz/spring-cloud) 에 올려두었다.
 
 ---
@@ -102,7 +102,7 @@ encrypt:
 
 ![](image/check-via-config.png)
     
-- 유저 서비스에서 콘솔 출력으로 확인
+- 유저 서비스에서 API로 확인
   health-check API를 아래와 같이 DB 설정 정보를 반환하도록 수정한다
 
 ```java

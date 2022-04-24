@@ -1,2 +1,6 @@
 encrypt:
-  key: secretkey123456789
+  # key: secretkey123456789
+  key-store:
+    location: classpath:keystore/encryptionKey.jks
+    password: 1q2w3e4r
+    alias: encryptionKey
