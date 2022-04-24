@@ -63,3 +63,77 @@ encrypt:
 ---
 
 #### User Service 적용
+
+유저 서비스의 application.yml 파일을 확인해보면 DB 접속 정보 중 비밀번호가 평범한 텍스트 파일로 저장되어 있는 것을 확인할 수 있다.
+
+```yaml
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: sa
+```
+
+우리의 목표는 DB 접속정보를 Config 서버로 옮기는 것과 동시에 DB 접속정보 중 비밀번호를 암호화하여 저장하는 것이다.
+
+1. 유저 서비스의 application.yml 수정
+
+목표에서 살펴보았던 DB 접속 정보를 지워준다.
+
+![](image/deleted-db-accesss-info.png)
+
+2. DB 접속 비밀번호 암호화
+
+적용 및 테스트에서 했던 것과 동일하게 Config 서버의 encrypt API를 호출하여 DB 접속 비밀번호를 암호화 한다.
+
+![](image/encrypted-password.png)
+
+3. Config 용 원격 깃 저장소 수정
+
+[Config 서버 적용](https://imprint.tistory.com/221?category=1069520) 에서 생성했던 Config 용 원격저장소의 유저 서비스를 위한 yml 파일을 수정해야한다.
+1번 단계에서 삭제한 DB 접속 정보를 적어준다. 이때 비밀번호는 암호화된 비밀번호로 변경하고 암호화된 비밀번호임을 표시하기 위해 비밀번호 앞에 {cipher}라는 접두사를 붙인다.
+
+![](image/modify-user-default-yml.png)
+
+4. 정상 반영 확인
+
+- Config 서버를 통한 확인
+  localhost:8888/user/default 로 접속하여 정상적으로 복호화(decrypt)되는지 확인해본다.
+
+![](image/check-via-config.png)
+    
+- 유저 서비스에서 콘솔 출력으로 확인
+  health-check API를 아래와 같이 DB 설정 정보를 반환하도록 수정한다
+
+```java
+@RestController
+@RequestMapping("")
+@RequiredArgsConstructor
+public class MyUserController {
+    private final Environment environment;
+    private final MyUserService userService;
+    @GetMapping("/health-check")
+    public String healthCheck() {
+        return String.format("expiration_time: %s, secret: %s, password: %s",
+                environment.getProperty("token.expiration_time"),
+                environment.getProperty("token.secret"),
+                environment.getProperty("spring.datasource.password")
+        );
+    }
+}
+```
+
+서버를 재실행하고 우리가 원하는 비밀번호가 반환되는지 확인한다.
+
+![](image/check-via-user.png)
+
+---
+
+지금까지 대칭키 암호화(Symmetric Encryption)를 적용하는 방법에 대해서 알아보았다.
+다음 장에서는 비대칭키 암호화(Asymmetric Encryption)에 대해서 알아본다.
+
+---
+
+**참고한 강의**: 
+
+- https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%ED%81%B4%EB%9D%BC%EC%9A%B0%EB%93%9C-%EB%A7%88%EC%9D%B4%ED%81%AC%EB%A1%9C%EC%84%9C%EB%B9%84%EC%8A%A4

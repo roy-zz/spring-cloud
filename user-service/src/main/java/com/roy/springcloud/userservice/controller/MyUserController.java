@@ -24,9 +24,10 @@ public class MyUserController {
 
     @GetMapping("/health-check")
     public String healthCheck() {
-        return String.format("expiration_time: %s, secret: %s",
+        return String.format("expiration_time: %s, secret: %s, password: %s",
                 environment.getProperty("token.expiration_time"),
-                environment.getProperty("token.secret")
+                environment.getProperty("token.secret"),
+                environment.getProperty("spring.datasource.password")
         );
     }
 
