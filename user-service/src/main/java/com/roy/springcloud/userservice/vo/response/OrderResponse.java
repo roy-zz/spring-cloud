@@ -11,6 +11,5 @@ public class OrderResponse {
     private Integer unitPrice;
     private Integer totalPrice;
     private LocalDateTime createdAt;
-
     private String orderId;
 }
