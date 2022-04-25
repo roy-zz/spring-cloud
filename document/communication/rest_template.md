@@ -238,13 +238,46 @@ public class OrderServiceImpl implements OrderService {
 ![](image/get-user-with-orders.png)
 
 **참고**
-요청 시 사용된 curl은 아래와 같다.
+1. 요청 시 사용된 curl은 아래와 같다.
 
 ```bash
 $ curl --location --request GET 'http://localhost:8000/user-service/users/f312a60f-e24d-4862-933b-97add5269f0c' \
 --header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2NGI1NDhlZC04MzViLTRlNjUtOWEyMS02NTM2MmEwNDEzMzgiLCJleHAiOjE2NTE2NzcwMTV9.Y6tdlV3Z1moDWpJ6iV8KisKXCVg9zoBmiowEl6Jkr8N8m4v5yZfysXlMBy598uGpBHbgCS2i27hFUUUUoYGo1w' \
 --header 'Cookie: JSESSIONID=63BF99CFFAF313D37DB45A38641D7228'
 ```
+
+2. 변동되는 IP 대응
+
+우리는 설정정보에 주문 서비스의 IP주소를 적어두었다.
+
+```yaml
+order:
+  url-prefix: http://127.0.0.1:8000/order-service
+  get-orders-path: /%s/orders 
+```
+
+하지만 설정 정보에 이렇게 적어놓는 경우 변동되는 서버 IP를 대응할 수 없으며 Scale-Out 되어 새로운 IP가 추가되어도 적용할 수 없다.
+이전에 LoadBalancer에서 사용한 것과 같이 IP + Port 조합이 아닌 마이크로서비스의 이름으로 설정 정보를 구성할 수 있다.
+
+RestTemplate를 빈으로 등록하는 단계에서 @LoadBalancer라는 애노테이션을 추가한다.
+
+```java
+@Bean
+@LoadBalanced
+public RestTemplate getRestTemplate() {
+    return new RestTemplate();
+}
+```
+
+설정정보에 IP + Port 로 구성된 주소 부분을 마이크로서비스 이름으로 변경한다.
+
+```yaml
+order:
+  url-prefix: http://order-service/order-service
+  get-orders-path: /%s/orders 
+```
+
+이렇게 구성하는 경우 IP가 변동되거나 Scale-Out되어 새로운 IP가 추가되더라도 우리는 별다른 작업없이 적용이 가능하다.
 
 ---
 
