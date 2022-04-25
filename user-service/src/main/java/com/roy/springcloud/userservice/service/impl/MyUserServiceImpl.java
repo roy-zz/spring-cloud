@@ -1,11 +1,13 @@
 package com.roy.springcloud.userservice.service.impl;
 
+import com.roy.springcloud.userservice.client.OrderServiceClient;
 import com.roy.springcloud.userservice.domain.MyUser;
 import com.roy.springcloud.userservice.dto.MyUserDto;
 import com.roy.springcloud.userservice.repository.MyUserRepository;
 import com.roy.springcloud.userservice.service.MyUserService;
 import com.roy.springcloud.userservice.vo.response.OrderResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
@@ -21,6 +23,7 @@ import java.util.*;
 
 import static com.roy.springcloud.util.mapper.MapperUtil.toObject;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MyUserServiceImpl implements MyUserService {
@@ -28,6 +31,7 @@ public class MyUserServiceImpl implements MyUserService {
     private final RestTemplate restTemplate;
     private final MyUserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final OrderServiceClient orderServiceClient;
 
     @Override
     public void createUser(MyUserDto userDto) {
@@ -41,12 +45,15 @@ public class MyUserServiceImpl implements MyUserService {
     public MyUserDto getUserByUserId(String userId) {
         MyUser savedUser = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        ResponseEntity<List<OrderResponse>> orderListResponse = restTemplate.exchange(
-                getOrderRequestUrl(userId), HttpMethod.GET, null,
-                new ParameterizedTypeReference<List<OrderResponse>>() {}
-        );
+//        ResponseEntity<List<OrderResponse>> orderListResponse = restTemplate.exchange(
+//                getOrderRequestUrl(userId), HttpMethod.GET, null,
+//                new ParameterizedTypeReference<List<OrderResponse>>() {}
+//        );
+//        MyUserDto response = toObject(savedUser, MyUserDto.class);
+//        response.setOrders(orderListResponse.getBody());
+        List<OrderResponse> orderListResponse = orderServiceClient.getOrders(userId);
         MyUserDto response = toObject(savedUser, MyUserDto.class);
-        response.setOrders(orderListResponse.getBody());
+        response.setOrders(orderListResponse);
         return response;
     }
 

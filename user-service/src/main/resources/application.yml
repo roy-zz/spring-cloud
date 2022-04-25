@@ -34,7 +34,7 @@ greeting:
   message: Welcome to the Simple E-Commerce(User Service).
 
 logging:
-  lelvel:
+  level:
     com.roy.springcloud.userservice: DEBUG
 
 management:
