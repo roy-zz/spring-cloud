@@ -1,5 +1,5 @@
 이번 장에서는 우리가 지금까지 다루었던 마이크로서비스 간 통신과 데이터 동기화의 한계에 대해서 다뤄본다.
-모든 소스 코드는 [깃허브 (링크)](https://github.com/roy-zz/spring-cloud) 에 올려두었다.
+모든 소스 코드는 [깃 허브 (링크)](https://github.com/roy-zz/spring-cloud) 에 올려두었다.
 
 ---
 
