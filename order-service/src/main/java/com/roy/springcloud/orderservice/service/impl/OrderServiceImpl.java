@@ -3,6 +3,7 @@ package com.roy.springcloud.orderservice.service.impl;
 import com.roy.springcloud.orderservice.domain.Order;
 import com.roy.springcloud.orderservice.dto.OrderDto;
 import com.roy.springcloud.orderservice.repository.OrderRepository;
+import com.roy.springcloud.orderservice.service.KafkaProducer;
 import com.roy.springcloud.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import static com.roy.springcloud.util.mapper.MapperUtil.toObject;
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
+    private final KafkaProducer kafkaProducer;
     private final OrderRepository orderRepository;
 
     @Override
@@ -24,6 +26,7 @@ public class OrderServiceImpl implements OrderService {
         orderDto.setTotalPrice(orderDto.getQuantity() * orderDto.getUnitPrice());
         Order newOrder = toObject(orderDto, Order.class);
         orderRepository.save(newOrder);
+        kafkaProducer.send("example-order-topic", orderDto);
         return toObject(newOrder, OrderDto.class);
     }
 
