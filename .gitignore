@@ -1,4 +1,5 @@
 HELP.md
+thirdparty/
 .gradle
 build/
 src/main/generated/
