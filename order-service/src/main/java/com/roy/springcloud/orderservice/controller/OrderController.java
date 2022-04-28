@@ -1,6 +1,8 @@
 package com.roy.springcloud.orderservice.controller;
 
 import com.roy.springcloud.orderservice.dto.OrderDto;
+import com.roy.springcloud.orderservice.service.KafkaProducer;
+import com.roy.springcloud.orderservice.service.OrderProducer;
 import com.roy.springcloud.orderservice.service.OrderService;
 import com.roy.springcloud.orderservice.vo.request.OrderSaveRequest;
 import com.roy.springcloud.orderservice.vo.response.OrderResponse;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.roy.springcloud.util.mapper.MapperUtil.toObject;
@@ -21,6 +24,8 @@ import static com.roy.springcloud.util.mapper.MapperUtil.toObject;
 public class OrderController {
     private final Environment environment;
     private final OrderService orderService;
+    private final KafkaProducer kafkaProducer;
+    private final OrderProducer orderProducer;
 
     @GetMapping("/health-check")
     public String healthCheck() {
@@ -33,8 +38,15 @@ public class OrderController {
                                                      @RequestBody OrderSaveRequest request) {
         OrderDto orderDto = toObject(request, OrderDto.class);
         orderDto.setUserId(userId);
-        OrderDto savedOrder = orderService.createOrder(orderDto);
-        OrderResponse response = toObject(savedOrder, OrderResponse.class);
+        // Using MariaDB Connector
+        // OrderDto savedOrder = orderService.createOrder(orderDto);
+        // OrderResponse response = toObject(savedOrder, OrderResponse.class);
+        // Using Kafka
+        orderDto.setOrderId(UUID.randomUUID().toString());
+        orderDto.setTotalPrice(request.getQuantity() * request.getUnitPrice());
+        OrderResponse response = toObject(orderDto, OrderResponse.class);
+        kafkaProducer.send("example-catalog-topic", orderDto);
+        orderProducer.send("orders", orderDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

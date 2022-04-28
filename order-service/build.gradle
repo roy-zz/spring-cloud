@@ -1,6 +1,7 @@
 dependencies {
     implementation(project(":util"))
 
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.4'
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -22,6 +23,10 @@ dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
+}
+
+repositories {
+    mavenCentral()
 }
 
 tasks.named('test') {
