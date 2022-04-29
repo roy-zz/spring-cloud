@@ -8,6 +8,8 @@ import com.roy.springcloud.userservice.service.MyUserService;
 import com.roy.springcloud.userservice.vo.response.OrderResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
@@ -32,6 +34,7 @@ public class MyUserServiceImpl implements MyUserService {
     private final MyUserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final OrderServiceClient orderServiceClient;
+    private final CircuitBreakerFactory circuitBreakerFactory;
 
     @Override
     public void createUser(MyUserDto userDto) {
@@ -51,7 +54,11 @@ public class MyUserServiceImpl implements MyUserService {
 //        );
 //        MyUserDto response = toObject(savedUser, MyUserDto.class);
 //        response.setOrders(orderListResponse.getBody());
-        List<OrderResponse> orderListResponse = orderServiceClient.getOrders(userId);
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
+        List<OrderResponse> orderListResponse = circuitBreaker.run(
+                () -> orderServiceClient.getOrders(userId),
+                throwable -> Collections.emptyList());
+        // List<OrderResponse> orderListResponse = orderServiceClient.getOrders(userId);
         MyUserDto response = toObject(savedUser, MyUserDto.class);
         response.setOrders(orderListResponse);
         return response;
