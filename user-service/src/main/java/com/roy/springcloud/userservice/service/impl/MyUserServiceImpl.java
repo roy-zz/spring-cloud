@@ -54,13 +54,15 @@ public class MyUserServiceImpl implements MyUserService {
 //        );
 //        MyUserDto response = toObject(savedUser, MyUserDto.class);
 //        response.setOrders(orderListResponse.getBody());
+        // List<OrderResponse> orderListResponse = orderServiceClient.getOrders(userId);
+        log.info("Before call orders microservice");
         CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
         List<OrderResponse> orderListResponse = circuitBreaker.run(
                 () -> orderServiceClient.getOrders(userId),
                 throwable -> Collections.emptyList());
-        // List<OrderResponse> orderListResponse = orderServiceClient.getOrders(userId);
         MyUserDto response = toObject(savedUser, MyUserDto.class);
         response.setOrders(orderListResponse);
+        log.info("After called orders microservice");
         return response;
     }
 
