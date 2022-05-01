@@ -79,7 +79,7 @@ $ java -jar zipkin.jar
 
 1. 의존성 추가
 
-유저 서버서의 `build.gradle` 파일에 `Sleuth`와 `Zipkin`을 사용하기 위해 아래와 같이 의존성을 추가한다.
+유저 서비스의 `build.gradle` 파일에 `Sleuth`와 `Zipkin`을 사용하기 위해 아래와 같이 의존성을 추가한다.
 
 ```bash
 implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
@@ -106,14 +106,131 @@ spring:
 
 3. 로그 추가
 
-정상작동 확인을 위해 `CircuitBreaker`관련 코드 앞과 뒤에 로그를 출력하는 코드를 추가한다.
+정상 작동 확인을 위해 `CircuitBreaker`관련 코드 앞과 뒤에 로그를 출력하는 코드를 추가한다.
 
+```java
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class MyUserServiceImpl implements MyUserService {
+    private final Environment environment;
+    private final RestTemplate restTemplate;
+    private final MyUserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final OrderServiceClient orderServiceClient;
+    private final CircuitBreakerFactory circuitBreakerFactory;
+    // 생략...
+    @Override
+    public MyUserDto getUserByUserId(String userId) {
+        MyUser savedUser = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        log.info("Before call orders microservice");
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
+        List<OrderResponse> orderListResponse = circuitBreaker.run(
+                () -> orderServiceClient.getOrders(userId),
+                throwable -> Collections.emptyList());
+        MyUserDto response = toObject(savedUser, MyUserDto.class);
+        response.setOrders(orderListResponse);
+        log.info("After called orders microservice");
+        return response;
+    }
+    // 생략...
+}
+```
 
+---
 
+#### Orders Service 수정
 
+1. 의존성 추가
 
+주문 서비스의 `build.gradle` 파일에 `Sleuth`와 `Zipkin`을 사용하기 위해 아래와 같이 의존성을 추가한다.
 
+```bash
+implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
+implementation 'org.springframework.cloud:spring-cloud-starter-zipkin'
+```
 
+2. application.yml 수정
+
+`application.yml` 파일에 아래와 같이 `Zipkin`과 `Sleuth` 설정을 추가한다.
+
+```yaml
+spring:
+  application:
+    name: order-service
+  # 생략...
+  zipkin:
+    base-url: http://localhost:9411
+    enabled: true
+  sleuth:
+    sampler:
+      probability: 1.0
+  # 생략...
+```
+
+---
+
+#### 테스트
+
+`Slueth`와 `Zipkin` 연동은 완료되었다.
+정상적으로 분산 추적이 가능한지 API요청을 통해 테스트를 진행한다.
+
+1. 사용자 등록
+
+아래의 이미지와 같이 테스트에 사용될 사용자를 추가한다.
+
+![](sleuthzipkin_image/save-user.png)
+
+2. 주문 등록
+
+1단계에서 저장된 사용자의 `userId`를 사용하여 새로운 주문정보를 등록한다.
+
+![](sleuthzipkin_image/save-order.png)
+
+3. 사용자 정보 조회
+
+1단계에서 저장된 사용자의 `userId`의 사용자 정보를 조회한다.
+
+![](sleuthzipkin_image/get-user.png)
+
+4. 로그 출력확인
+
+`CircuitBreaker` 앞뒤로 추가한 로그를 출력하는 코드가 정상적으로 작동하였는지 확인한다.
+
+```bash
+2022-05-01 [user-service,825c1eb0946af900,825c1eb0946af900] Before call orders microservice
+2022-05-01 [user-service,825c1eb0946af900,fc7542328a1c31da] [OrderServiceClient#getOrders] ---> GET http://order-service/order-service/8387dca2-41e2-45df-9330-6c51e759d7ac/orders HTTP/1.1
+2022-05-01 [user-service,825c1eb0946af900,fc7542328a1c31da] [OrderServiceClient#getOrders] ---> END HTTP (0-byte body)
+2022-05-01 [user-service,825c1eb0946af900,fc7542328a1c31da] [OrderServiceClient#getOrders] <--- HTTP/1.1 200 (14ms)
+2022-05-01 [user-service,825c1eb0946af900,fc7542328a1c31da] [OrderServiceClient#getOrders] connection: keep-alive
+2022-05-01 [user-service,825c1eb0946af900,fc7542328a1c31da] [OrderServiceClient#getOrders] content-type: application/json
+2022-05-01 [user-service,825c1eb0946af900,fc7542328a1c31da] [OrderServiceClient#getOrders] date: Sun, 01 May 2022 09:59:29 GMT
+2022-05-01 [user-service,825c1eb0946af900,fc7542328a1c31da] [OrderServiceClient#getOrders] keep-alive: timeout=60
+2022-05-01 [user-service,825c1eb0946af900,fc7542328a1c31da] [OrderServiceClient#getOrders] transfer-encoding: chunked
+2022-05-01 [user-service,825c1eb0946af900,fc7542328a1c31da] [OrderServiceClient#getOrders] 
+2022-05-01 [user-service,825c1eb0946af900,fc7542328a1c31da] [OrderServiceClient#getOrders] [{"productId":"CATALOG-0001","quantity":10,"unitPrice":1000,"totalPrice":10000,"orderId":"229f645d-4f0f-4fae-bdef-be9fc1ec1690"},{"productId":"CATALOG-0001","quantity":10,"unitPrice":1000,"totalPrice":10000,"orderId":"6a1bd75a-f766-47d5-9eef-8fb86ccf07a2"}]
+2022-05-01 [user-service,825c1eb0946af900,fc7542328a1c31da] [OrderServiceClient#getOrders] <--- END HTTP (257-byte body)
+2022-05-01 [user-service,825c1eb0946af900,825c1eb0946af900] After called orders microservice
+```
+
+출력 결과를 확인해보면 정상적으로 출력된 것을 확인할 수 있다.
+우리는 로그를 통해 `TraceId`와 `SpanId`를 확인할 수 있다.
+두번 째 줄로 예를 들면 `825c1eb0946af900`는 `TraceId`가 되고 `fc7542328a1c31da`는 `SpanId`가 된다.
+
+5. Zipkin 페이지 확인
+
+`localhostL:9411`에 접속하여 `Zipkin` 페이지에 요청에 대한 정보가 출력되는지 확인한다.
+
+![](sleuthzipkin_image/zipkin-page.png)
+
+4번 단계에서 확인한 `TraceId`로 원하는 결과만 출력할 수 있다.
+
+![](sleuthzipkin_image/search-via-traceid.png)
+
+---
+
+이번 장에서는 `Sleuth`와 `Zipkin`을 사용하여 분산 추적하는 방법에 대해서 알아보았다.
 
 ---
 
