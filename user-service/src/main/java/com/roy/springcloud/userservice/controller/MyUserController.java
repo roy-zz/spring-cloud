@@ -4,6 +4,7 @@ import com.roy.springcloud.userservice.dto.MyUserDto;
 import com.roy.springcloud.userservice.service.MyUserService;
 import com.roy.springcloud.userservice.vo.request.MyUserSaveRequest;
 import com.roy.springcloud.userservice.vo.response.MyUserResponse;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ public class MyUserController {
     private final MyUserService userService;
 
     @GetMapping("/health-check")
+    @Timed(value = "users.status", longTask = true)
     public String healthCheck() {
         return String.format("expiration_time: %s, secret: %s, password: %s",
                 environment.getProperty("token.expiration_time"),
@@ -32,6 +34,7 @@ public class MyUserController {
     }
 
     @GetMapping("/welcome")
+    @Timed(value = "users.welcome", longTask = true)
     public String welcome() {
         return environment.getProperty("greeting.message");
     }
