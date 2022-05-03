@@ -7,12 +7,12 @@
 
 `Turbine Server`는 마이크로서비스에 설치된 `Hystrix` 클라이언트의 스트림 메시지를 아래와 같이 통합한다.
 
-![](micrometer_image/turbine-server-diagram.png)
+![](prometheus_install_image/turbine-server-diagram.png)
 
 `Turbine Server`는 설정 파일에 정의되어 있는 `msa-service-order`, `msa-service-member`, `msa-service-delivery`와 같은 `Hystrix` 클라이언트들의 스트림 메시지를 수집한다.
 이후 `Hystrix Dashboard`를 통해 클라이언트로 부터 전달받은 스트림을 시각화한다.
 
-![](micrometer_image/turbine-server-flow.png)
+![](prometheus_install_image/turbine-server-flow.png)
 
 하지만 `Hystrix`와 `Turbine Server`는 스프링 클라우드 최신 버전에는 더 이상 쓰이지 않다.
 최근에는 `Micrometer`와 `Monitoring System`으로 대체되었고 우리의 마이크로서비스에도 새로운 기술을 적용시켜 본다.
@@ -86,13 +86,13 @@ public class MyUserController {
 localhost:8000/user-service/actuator/metrics
 ```
 
-![](micrometer_image/actuator-metrics.png)
+![](prometheus_install_image/actuator-metrics.png)
 
 ```bash
 localhost:8000/user-service/actuator/prometheus
 ```
 
-![](micrometer_image/actuator-prometheus.png)
+![](prometheus_install_image/actuator-prometheus.png)
 
 ---
 
@@ -121,7 +121,7 @@ localhost:8000/user-service/actuator/prometheus
 https://prometheus.io/download/
 ```
 
-![](micrometer_image/prometheus-download.png)
+![](prometheus_install_image/prometheus-download.png)
 
 2. prometheus.yml 수정
 
@@ -150,7 +150,7 @@ $ ./prometheus --config.file=prometheus.yml
 
 아래와 같이 출력된다면 정상적으로 `prometheus`가 실행된 것이다.
 
-![](micrometer_image/run-prometheus-success.png)
+![](prometheus_install_image/run-prometheus-success.png)
 
 4. prometheus 접속
 
@@ -161,10 +161,10 @@ $ localhost:9090
 ```
 
 **Table**
-![](micrometer_image/prometheus-table.png)
+![](prometheus_install_image/prometheus-table.png)
 
 **Graph**
-![](micrometer_image/prometheus-graph.png)
+![](prometheus_install_image/prometheus-graph.png)
 
 ---
 
@@ -178,7 +178,7 @@ $ localhost:9090
 grafana.com/grafana/download?platform=mac
 ```
 
-![](micrometer_image/grafana-download.png)
+![](prometheus_install_image/grafana-download.png)
 
 2. grafana 실행
 
@@ -199,7 +199,7 @@ localhost:3000
 
 `configuration` -> `Data sources` -> `Prometheus` 로 접속하여 위에서 실행시킨 `prometheus`의 정보를 입력한다.
 
-![](micrometer_image/save-prometheus-datasource.png)
+![](prometheus_install_image/save-prometheus-datasource.png)
 
 ---
 
