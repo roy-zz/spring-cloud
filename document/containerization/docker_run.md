@@ -1,5 +1,5 @@
 [이전 장(링크)](https://imprint.tistory.com/254) 에서는 `도커란 무엇인가`와 `도커 설치 방법`에 대해서 알아보았다. 
-이번 장에서는 `도커 이미지`를 실행하는 방법과 저장소에 `Push`, `Pull`하는 방법에 대해서 알아본다.
+이번 장에서는 `도커 이미지`를 생성하고 실행하는 방법에 대해서 알아본다.
 모든 소스 코드는 [깃 허브 (링크)](https://github.com/roy-zz/spring-cloud) 에 올려두었다.
 
 ---
@@ -77,9 +77,9 @@ $ docker logs -f mariadb
 
 ---
 
-### 이미지 생성 및 저장소 사용
+### 이미지 생성
 
-우리의 마이크로서비스중 유저 서비스를 도커 이미지로 만들고 저장소(Docker Hub)에 `Push`하는 방법에 대해서 알아본다.
+우리의 마이크로서비스중 `유저 서비스`를 도커 이미지로 만드는 방법에 대해서 알아본다.
 
 1. Dockerfile 생성
 
@@ -88,24 +88,46 @@ $ docker logs -f mariadb
 ```dockerfile
 FROM openjdk:17-ea-11-jdk-slim
 VOLUME /tmp
-COPY target/user-service-1.0.jar UserService.jar
+COPY build/libs/user-service-1.0.jar UserService.jar
 ENTRYPOINT ["java", "-jar", "UserService.jar"]
 ```
 
 2. jar build
 
+유저 서비스 디렉토리에서 아래의 커맨드를 입력하여 `jar`파일을 생성한다.
 
+```bash
+$ gradle build
+```
 
+![](docker_run_image/gradle-build-result.png)
 
+`~/user-service/build/lib` 경로에 `user-service-1.0.jar` 파일이 생성된 것을 확인한다.
+여기서 버전 정보는 `build.gradle`에 있는 버전 정보를 따라가므로 설정 정보에 따라 다를 수 있다.
 
+![](docker_run_image/archive-user-service-jar.png)
 
+3. docker build
 
+아래의 커맨드를 입력하여 도커 이미지를 생성한다.
 
+```bash
+$ docker build --tag roy-msa/user-service:1.0 .
+```
 
+![](docker_run_image/docker-build-print.png)
 
+아래의 커맨드를 입력하여 이미지 목록에 우리가 생성한 이미지가 있는지 확인한다.
 
+```bash
+$ docker images
+```
 
+![](docker_run_image/docker-images-for-user-service.png)
 
+---
+
+이번 장에서는 `docker-hub`에 업로드 되어 있는 `mariadb` 이미지 파일을 다운받아서 실행시키는 방법과 우리의 `유저 서비스`를 도커 이미지로 만들고 실행시키는 방법에 대해서 알아보았다.
 
 ---
 
