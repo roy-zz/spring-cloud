@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.roy.springcloud.util.mapper.MapperUtil.toObject;
+import static com.roy.springcloud.orderservice.mapper.MapperUtil.toObject;
 
 @RestController
 @RequiredArgsConstructor

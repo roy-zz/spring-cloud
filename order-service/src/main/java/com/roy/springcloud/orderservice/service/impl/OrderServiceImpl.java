@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.roy.springcloud.util.mapper.MapperUtil.toObject;
+import static com.roy.springcloud.orderservice.mapper.MapperUtil.toObject;
 
 @Service
 @RequiredArgsConstructor

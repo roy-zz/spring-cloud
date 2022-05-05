@@ -1,6 +1,26 @@
-dependencies {
-    implementation(project(":util"))
+plugins {
+    id 'org.springframework.boot' version '2.6.6'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java-library'
+}
 
+group = 'com.roy'
+version = '1.0'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+jar {
+    enabled(true)
+}
+
+ext {
+    set('springCloudVersion', "2021.0.1")
+}
+
+dependencies {
     implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.4'
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.springframework.boot:spring-boot-starter-web'

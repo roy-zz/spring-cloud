@@ -1,4 +1,4 @@
-package com.roy.springcloud.util.mapper;
+package com.roy.springcloud.orderservice.mapper;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

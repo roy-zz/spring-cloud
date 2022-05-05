@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.roy.springcloud.util.mapper.MapperUtil.toObject;
+import static com.roy.springcloud.userservice.util.mapper.MapperUtil.toObject;
 
 @RestController
 @RequestMapping("")

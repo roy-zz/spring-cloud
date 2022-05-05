@@ -1,10 +1,9 @@
 rootProject.name = 'springcloud'
-include("discovery")
-include("gateway")
-include("test-server1")
-include("test-server2")
-include("user-service")
-include("order-service")
-include("catalog-service")
-include("config")
-include("util")
+include ':discovery'
+include ':gateway'
+include ':test-server1'
+include ':test-server2'
+include ':user-service'
+include ':order-service'
+include ':catalog-service'
+include ':config'
