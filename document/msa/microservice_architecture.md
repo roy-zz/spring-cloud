@@ -132,9 +132,96 @@ Amazon의 DevOps팀에서는 점심식사를 할 때 피자 두 판을 나눠먹
 
 `SOA(Service Oriented Architecture)`와 `MSA(Microservice Architecture)`의 차이에 대해서 알아본다.
 
+**서비스의 공유 지향**
 
+`SOA`: 서비스 공유를 최대화하여 재사용을 통한 비용 절감을 목표로 한다.
+`MSA`: 서비스 공유를 최소화하여 서비스 간의 결합도를 낮추어 변화에 능동적으로 대응하는 것을 목표로 한다.
 
+![](microservice_architecture_image/service-share-goal.png)
 
+**기술 방식**
+
+`SOA`: 공통의 서비스를 `ESB`에 모아서 사업 측면에서 공통 서비스 형식으로 서비스 제공
+`MSA`: 각 독립된 서비스가 노출된 `REST API`를 사용하여 서비스를 제공
+
+`ESB`는 Enterprise Service Bus로 서비스들을 컴포넌트화된 논리적 집합으로 묶는 미들웨어로 이벤트 및 서비스에 대한 요청과 처리를 중개하여 인프라 전체 스트럭쳐에 분포되게 한다.
+서비스는 기업의 업무에 따라 나뉘어진 하나의 소프트웨어를 뜻한다
+
+![](microservice_architecture_image/technical-method.png)
+
+**RESTful API의 성숙도 모델**
+
+- LEVEL 0: `REST` 방식으로 설계가 되었다고 보기보다는 리소스를 단순하게 웹 서비스 상태로서 제공하기 위해서 `URL`만 매핑한 형태
+  - http://server/getPosts
+  - http://server/deletePosts
+  - http://server/doThis
+
+- LEVEL 1: 외부로 제공하려는 리소스를 의미있고 적절한 URL로 표현하기 시작하였다. 적절한 패턴을 가지고 구분하였지만 `HTTP Methods`를 사용하고 있지 않다.
+  - http://server/accounts
+  - http://server/accounts/10
+
+- LEVEL 2: LEVEL 1에 `HTTP Methods`가 추가된 형태다. 같은 URL을 가지고 있더라도 `HTTP Method`에 의해 다른 서비스를 제공할 수 있게 된다.
+
+- LEVEL 3: LEVEL 2 단계에 `HATEOAS`가 추가된 형태다. `HATEOAS`는 데이터와 함께 다음으로 가능한 행위를 전달하는 것을 의미한다.
+
+![](microservice_architecture_image/constraints-of-rest.png)
+
+**RESTful API를 설계할 때 고려해야하는 사항**
+
+- Consumer first: API를 설계하는 개발자입장이 아니라 API를 사용하는 클라이언트 입장에서 간단명로하고 직관적으로 보이도록 설계해야 한다.
+- Make best use of HTTP: `Content-Type`, `Header`와 같은 HTTP의 장점들을 살려서 개발해야 한다.
+- Request methods: 최소한 LEVEL 2를 적용하여 `HTTP Method`를 적용하여 설계해야 한다.
+- Response Status: 각각의 API 요청에 따라서 상황에 맞는 `HTTP Status Code`가 전달되어야 한다.
+- No secure info in URI: 보안에 민감한 정보는 URI에 포함되지 않도록 설계해야 한다.
+- Use Plurals: 제공하는 데이터에 대해서 URL은 복수형태로 설계해야 한다. 만약 특정 리소스에 대한 값이 궁금하다면 경로에 리소스의 `id`를 포함하여 요청해야 한다.
+- User nouns for resources: 모든 리소스는 가능하면 명사형태로 표시하도록 설계해야 한다.
+- For exceptions: 진입점을 단일화하도록 설계해야 한다.
+
+![](microservice_architecture_image/soa-vs-msa-diagram.png)
+
+`MSA`의 경우 `Kafka`를 통하여 `DB`간의 동기화를 이루어낸다.
+
+---
+
+### Microservices Architecture Components
+
+#### MSA 표준 구성
+
+![](microservice_architecture_image/microservices-architecture-components.png)
+
+클라이언트 인 `Mobile App`, `Browser App`, `Other Services`는 `API Gateway`를 통해서 서비스 요청을 한다. 
+요청을 받은 `API Gateway`는 `Service Router`에게 어디로 요청을 보내야하는지 질의한다.  
+질의를 받은 `Service Router`는 서비스가 등록되어 있는 `Service Discovery`에게 어느 서비스에게 전달해야하며 등록되어 있는지 물어보게 된다.
+이후 로드밸런서는 서비스의 상태를 확인하고 어떤 인스턴스로 요청 할 지 결정하게 된다.  
+마이크로서비스를 배포/관리하기 위해서 `CI/CD Automation`이라는 기능을 사용하게 되며 `DevOps`나 `Ops`에게 제공하는 API가 제공되어야 한다.
+`Backing Services`는 마이크로서비스들의 스토리지들을 모아서 관리하는 방법들을 얘기하고 있다.  
+`Monitoring`과 `Diagnostics(진단)` 기능을 통한 `Telemetry`기능을 구현하고 있다.
+  
+환경설정 정보는 `Config. Store`와 같은 구성 정보를 위한 서비스를 통해 관리한다.
+마이크로서비스들은 그림에 나와 있는 `Container Management`를 통해서 관리하게 된다.
+
+#### Service Mesh
+
+`Service Mesh`는 `Service Discovery`, `Service Router`, `Load Balancing`과 같은 기능을 하는 부분을 의미한다.
+
+![](microservice_architecture_image/service-mesh-capabilities.png)
+
+`Service Mesh`를 통해서 서비스간에 안전하고 빠르게 통신할 수 있게 해주는 인프라 스트럭쳐의 레이어라고 할 수 있다.
+추상화를 통해서 복잡한 내부 네트워크를 제어/추적하고 내부 네트워크 관련된 로직을 추가하면서 안정성, 신뢰성 등을 확보할 수 있게 해준다.
+구체적인 경량화 프록시를 통해서 다양한 라우팅 기능과 서킷브레이커와 같은 공통기능을 설정할 수 있다.
+서비스 간의 통신뿐만 아니라 서비스 배포 전략에도 도움이 된다.
+  
+`Service Mesh`는 하나의 제품이나 하나의 서비스를 지칭하는 것이 아니라 추상적인 개념이다.
+`Service Mesh`에서 그림에서 보이는 것과 같은 공통적인 기능들을 제공함으로써 안정적이고 효율적인 마이크로서비스 운영을 지원하는데 목적이 있다.
+
+![](microservice_architecture_image/cncf-main.png)
+
+[CNCF(Cloud Native Computing Foundation)](https://landscape.cncf.io/) 을 통해서 어떠한 방식으로 마이크로서비스 아키텍쳐를 구축할 것인지 살펴볼 수 있다.
+`Cloud Native`를 구축하면서 상호 연관되는 서비스들이 어떤 것들이 있는지 표시하고 있다.
+
+가트너에서 발표한 자료에 따르면 `MSA`를 기반으로 하는 기술은 수없이 많은 것을 알 수 있다.
+
+![](microservice_architecture_image/msa-base-technical.png)
 
 ---
 
